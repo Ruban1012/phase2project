@@ -23,7 +23,6 @@ if uploaded_file:
     image = Image.open(uploaded_file).convert("RGB")
     st.image(image, width="stretch")
 
-    # Preprocess
     h, w = input_details[0]['shape'][1:3]
     img = image.resize((w, h))
     img = np.array(img)
@@ -34,7 +33,6 @@ if uploaded_file:
     else:
         img = img.astype(np.uint8)
 
-    # Predict
     interpreter.set_tensor(input_details[0]['index'], img)
     interpreter.invoke()
 
