@@ -1,14 +1,17 @@
+import os
+os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
+
 import streamlit as st
 import numpy as np
 from PIL import Image
-from tflite_runtime.interpreter import Interpreter
+import tensorflow as tf
 
 st.set_page_config(page_title="Microplastic Detection", layout="wide")
 
 st.title("🌊 Microplastic Detection System")
 
-# Load model
-interpreter = Interpreter(model_path="model.tflite")
+# Load TFLite model using TensorFlow
+interpreter = tf.lite.Interpreter(model_path="model.tflite")
 interpreter.allocate_tensors()
 
 input_details = interpreter.get_input_details()
@@ -20,7 +23,7 @@ if uploaded_file:
     image = Image.open(uploaded_file).convert("RGB")
     st.image(image, width="stretch")
 
-    # preprocess
+    # Preprocess
     h, w = input_details[0]['shape'][1:3]
     img = image.resize((w, h))
     img = np.array(img)
@@ -31,7 +34,7 @@ if uploaded_file:
     else:
         img = img.astype(np.uint8)
 
-    # predict
+    # Predict
     interpreter.set_tensor(input_details[0]['index'], img)
     interpreter.invoke()
 
@@ -40,6 +43,6 @@ if uploaded_file:
     st.write("Raw Output:", float(pred))
 
     if pred > 0.5:
-        st.error("⚠️ Microplastic")
+        st.error("⚠️ Microplastic Detected")
     else:
         st.success("💧 Clean Water")
