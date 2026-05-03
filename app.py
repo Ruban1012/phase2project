@@ -1,3 +1,6 @@
+import os
+os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
+
 import streamlit as st
 import numpy as np
 from PIL import Image
@@ -26,16 +29,14 @@ if uploaded_file:
     st.image(image, width="stretch")
 
     # --------------------------
-    # PREPROCESS (IMPORTANT)
+    # PREPROCESS
     # --------------------------
-    input_shape = input_details[0]['shape']
-    h, w = input_shape[1], input_shape[2]
+    h, w = input_details[0]['shape'][1:3]
 
     img = image.resize((w, h))
     img = np.array(img)
     img = np.expand_dims(img, axis=0)
 
-    # Match dtype
     if input_details[0]['dtype'] == np.float32:
         img = img.astype(np.float32) / 255.0
     else:
@@ -51,9 +52,6 @@ if uploaded_file:
 
     st.write("Raw Output:", float(pred))
 
-    # --------------------------
-    # RESULT
-    # --------------------------
     if pred > 0.5:
         st.error(f"⚠️ Microplastic ({pred*100:.2f}%)")
     else:
